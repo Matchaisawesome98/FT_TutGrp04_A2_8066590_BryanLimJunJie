@@ -27,7 +27,7 @@ string Square::toString() const {
     stringstream ss;
     ss << "Name : " << getName() << endl;
     ss << "Special Type : " << (getContainsWarpSpace() ? "WS" : "NS") << endl;
-    ss << "Area : " << fixed << setprecision(0) << computeArea() << " units square" << endl;
+    ss << "Area : " << fixed << setprecision(2) << computeArea() << " units square" << endl;
 
     // Show vertices
     ss << "Vertices :" << endl;

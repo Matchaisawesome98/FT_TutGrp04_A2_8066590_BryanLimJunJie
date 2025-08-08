@@ -15,7 +15,16 @@
 using namespace std;
 
 class MenuSystem {
+private:
+    vector<ShapeTwoD*> shapes; // Store all shapes
+
 public:
+    ~MenuSystem() {
+        // Clean up dynamically allocated shapes
+        for (auto shape : shapes) {
+            delete shape;
+        }
+    }
     void displayMenu(){
         cout << "Student ID: 8066590" << endl;
         cout << "Student Name: Bryan Lim Jun Jie" << endl;
@@ -30,12 +39,56 @@ public:
     int getUserChoice() {
         int choice;
         cin >> choice;
+        cin.ignore();
+        cout << endl;
         return choice;
+    }
+    void inputSensorData() {
+        cout << "[ Input sensor data ]" << endl;
+        cout << "Please enter name of shape: ";
+        string shapeName;
+        cin >> shapeName;
+        cin.ignore();
+
+        if (shapeName == "Circle") {
+            cout << "Please enter special type: ";
+            string specialType;
+            cin >> specialType;
+            cin.ignore();
+
+            bool isWarpSpace = (specialType == "WS");
+
+            cout << "Please enter x-ordinate of center: ";
+            int centerX;
+            cin >> centerX;
+            cin.ignore();
+
+            cout << "Please enter y-ordinate of center: ";
+            int centerY;
+            cin >> centerY;
+            cin.ignore();
+
+            cout << "Please enter radius (units): ";
+            int radius;
+            cin >> radius;
+            cin.ignore();
+
+            // Create new circle and add to shapes vector
+            Circle* newCircle = new Circle(shapeName, isWarpSpace);
+            newCircle->setCenter(centerX, centerY);
+            newCircle->setRadius(radius);
+
+            shapes.push_back(newCircle);
+
+            cout << "Record successfully stored. Going back to main menu ..." << endl;
+        } else {
+            cout << "Shape type '" << shapeName << "' is not supported yet." << endl;
+        }
     }
     bool processMenuChoice(int choice) {
         switch (choice) {
             case 1:
-                cout << "Input sensor data" << endl;
+                inputSensorData();
                 break;
             case 2:
                 cout << "Compute area (for all records)" << endl;
@@ -48,9 +101,9 @@ public:
                 break;
             default:
                 cout << "Invalid choice! Please enter a number between 1 and 4." << endl;
-                return true;
+                break;
         }
-        return false;  // Return false to continue the menu loop
+        return true;
     }
     void runMenu() {
         bool keepRunning = true;
@@ -65,7 +118,6 @@ public:
 
 int main() {
     MenuSystem menu;
-    menu.displayMenu();
     menu.runMenu();
     return 0;
 }

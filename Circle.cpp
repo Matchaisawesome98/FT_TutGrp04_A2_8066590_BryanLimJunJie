@@ -10,3 +10,7 @@
 #include <iomanip>
 
 using namespace std;
+
+//Constructor
+Circle::Circle(const string &name, bool containsWarpSpace): ShapeTwoD(name, containsWarpSpace) {
+}

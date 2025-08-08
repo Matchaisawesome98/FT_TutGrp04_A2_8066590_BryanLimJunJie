@@ -5,39 +5,32 @@
 
 using namespace std;
 
-ShapeTwoD::ShapeTwoD(){
-  this->name = "Square";
-  this->containsWarpSpace = false;
+// Constructor
+ShapeTwoD::ShapeTwoD(const string& name, bool containsWarpSpace)
+    : name(name), containsWarpSpace(containsWarpSpace) {}
+
+// Getter methods
+string ShapeTwoD::getName() const {
+    return name;
 }
 
-ShapeTwoD::ShapeTwoD(string name, bool containsWarpSpace)
-  : name(name), containsWarpSpace(containsWarpSpace) {}
-  
-string ShapeTwoD::getName(){
-  return name;
+bool ShapeTwoD::getContainsWarpSpace() const {
+    return containsWarpSpace;
 }
 
-bool ShapeTwoD::getContainsWarpSpace(){
-  return containsWarpSpace;
+string ShapeTwoD::toString() const {
+    stringstream ss;
+    ss << "Name : " << name << endl;
+    ss << "Special Type : " << (containsWarpSpace ? "WS" : "NS") << endl;
+    ss << "Area : " << computeArea() << " units square" << endl;
+    return ss.str();
 }
 
-double ShapeTwoD::getArea(){
-  return area;
+// Setter methods
+void ShapeTwoD::setName(const string& name) {
+    this->name = name;
 }
 
-string ShapeTwoD::toString(){
-  stringstream ss;
-  ss << "Name : " << name << endl;
-  ss << "Special Type : " << (containsWarpSpace ? "WS" : "NS") << endl;
-  ss << "Area : " << computeArea() << " units square" << endl;
-  return ss.str();
+void ShapeTwoD::setContainsWarpSpace(bool containsWarpSpace) {
+    this->containsWarpSpace = containsWarpSpace;
 }
-
-void ShapeTwoD::setName(string name){
-  this->name = name;
-}
-
-void ShapeTwoD::setContainsWarpSpace(bool ContainsWarpSpace){
-  this->ContainsWarpSpace = ContainsWarpSpace;
-}
-

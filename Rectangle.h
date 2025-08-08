@@ -1,32 +1,29 @@
-#ifndef CIRCLE_H
-#define CIRCLE_H
+#ifndef RECTANGLE_H
+#define RECTANGLE_H
 
 #include "ShapeTwoD.h"
 #include <vector>
 
 using namespace std;
 
-class Circle:public ShapeTwoD {
+class Rectangle : public ShapeTwoD {
 private:
-    int centerX, centerY;  // Center coordinates
-    int radius;            // Radius of the circle
+    vector<pair<int, int>> vertices;  // 4 vertices of the rectangle
     vector<pair<int, int>> pointsOnPerimeter;  // Points on perimeter
     vector<pair<int, int>> pointsWithinShape;  // Points within shape
 
 public:
     // Constructor
-    Circle(const string& name, bool containsWarpSpace);
+    Rectangle(const string& name, bool containsWarpSpace);
+    
     // Virtual destructor
-    ~Circle() override = default;
+    ~Rectangle() override = default;
 
-    // Setters for circle-specific properties
-    void setCenter(int x, int y);
-    void setRadius(int r);
+    // Setter for vertices
+    void setVertices(const vector<pair<int, int>>& vertices);
 
-    // Getters for circle-specific properties
-    int getCenterX() const { return centerX; }
-    int getCenterY() const { return centerY; }
-    int getRadius() const { return radius; }
+    // Getter for vertices
+    const vector<pair<int, int>>& getVertices() const { return vertices; }
 
     // Override virtual methods from base class
     virtual string toString() const override;
@@ -41,7 +38,14 @@ public:
     // Getters for calculated points
     const vector<pair<int, int>>& getPointsOnPerimeter() const { return pointsOnPerimeter; }
     const vector<pair<int, int>>& getPointsWithinShape() const { return pointsWithinShape; }
-};
 
+private:
+    // Helper methods
+    bool isPointOnLineSegment(int px, int py, int x1, int y1, int x2, int y2) const;
+    int getBoundingBoxMinX() const;
+    int getBoundingBoxMaxX() const;
+    int getBoundingBoxMinY() const;
+    int getBoundingBoxMaxY() const;
+};
 
 #endif

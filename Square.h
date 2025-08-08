@@ -42,6 +42,7 @@ public:
 private:
     // Helper methods
     bool isPointOnLineSegment(int px, int py, int x1, int y1, int x2, int y2) const;
+    bool isCornerPoint(int x, int y, int minX, int maxX, int minY, int maxY) const;
     int getBoundingBoxMinX() const;
     int getBoundingBoxMaxX() const;
     int getBoundingBoxMinY() const;

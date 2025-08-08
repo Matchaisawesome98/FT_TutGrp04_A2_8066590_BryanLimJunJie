@@ -62,158 +62,100 @@ string Square::toString() const {
     return ss.str();
 }
 
-// Compute area using the shoelace formula
+// Compute area - for axis-aligned squares/rectangles
 double Square::computeArea() const {
     if (vertices.size() != 4) return 0.0;
     
-    // For a square, we can calculate area using the distance between adjacent vertices
-    // Area = side_length^2
-    int dx = vertices[1].first - vertices[0].first;
-    int dy = vertices[1].second - vertices[0].second;
-    double sideLength = sqrt(dx * dx + dy * dy);
+    // Find bounding box to calculate area
+    int minX = getBoundingBoxMinX();
+    int maxX = getBoundingBoxMaxX();
+    int minY = getBoundingBoxMinY();
+    int maxY = getBoundingBoxMaxY();
     
-    // For axis-aligned squares, use simpler calculation
-    if (dy == 0) { // horizontal side
-        sideLength = abs(dx);
-    } else if (dx == 0) { // vertical side
-        sideLength = abs(dy);
-    }
+    double width = maxX - minX;
+    double height = maxY - minY;
     
-    return sideLength * sideLength;
+    return width * height;
 }
 
-// Check if point is inside the square using ray casting algorithm
+// Check if point is inside the square (strictly inside, not on boundary)
 bool Square::isPointInShape(int x, int y) const {
     if (vertices.size() != 4) return false;
     
-    int intersections = 0;
+    int minX = getBoundingBoxMinX();
+    int maxX = getBoundingBoxMaxX();
+    int minY = getBoundingBoxMinY();
+    int maxY = getBoundingBoxMaxY();
     
-    // Ray casting: cast a ray from point to the right and count intersections
-    for (size_t i = 0; i < 4; i++) {
-        int x1 = vertices[i].first;
-        int y1 = vertices[i].second;
-        int x2 = vertices[(i + 1) % 4].first;
-        int y2 = vertices[(i + 1) % 4].second;
-        
-        // Check if ray intersects this edge
-        if (((y1 > y) != (y2 > y)) && 
-            (x < (x2 - x1) * (y - y1) / (y2 - y1) + x1)) {
-            intersections++;
-        }
-    }
-    
-    return (intersections % 2 == 1);
+    // Point must be strictly inside (not on the boundary)
+    return (x > minX && x < maxX && y > minY && y < maxY);
 }
 
 // Check if point is on the perimeter of the square
 bool Square::isPointOnShape(int x, int y) const {
     if (vertices.size() != 4) return false;
     
-    // Check if point lies on any of the four edges
-    for (size_t i = 0; i < 4; i++) {
-        int x1 = vertices[i].first;
-        int y1 = vertices[i].second;
-        int x2 = vertices[(i + 1) % 4].first;
-        int y2 = vertices[(i + 1) % 4].second;
-        
-        if (isPointOnLineSegment(x, y, x1, y1, x2, y2)) {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Helper method to check if point is on line segment
-bool Square::isPointOnLineSegment(int px, int py, int x1, int y1, int x2, int y2) const {
-    // Check if point is collinear with line segment
-    int crossProduct = (py - y1) * (x2 - x1) - (px - x1) * (y2 - y1);
-    if (crossProduct != 0) return false;
-    
-    // Check if point is within the bounds of the line segment
-    int minX = min(x1, x2);
-    int maxX = max(x1, x2);
-    int minY = min(y1, y2);
-    int maxY = max(y1, y2);
-    
-    return (px >= minX && px <= maxX && py >= minY && py <= maxY);
-}
-
-// Calculate points on perimeter
-void Square::calculatePerimeterPoints() {
-    pointsOnPerimeter.clear();
-    
-    if (vertices.size() != 4) return;
-    
-    // Find all integer points on each edge of the square
-    for (size_t i = 0; i < 4; i++) {
-        int x1 = vertices[i].first;
-        int y1 = vertices[i].second;
-        int x2 = vertices[(i + 1) % 4].first;
-        int y2 = vertices[(i + 1) % 4].second;
-        
-        // Generate points along this edge
-        if (x1 == x2) { // vertical line
-            int minY = min(y1, y2);
-            int maxY = max(y1, y2);
-            for (int y = minY; y <= maxY; y++) {
-                pointsOnPerimeter.push_back({x1, y});
-            }
-        } else if (y1 == y2) { // horizontal line
-            int minX = min(x1, x2);
-            int maxX = max(x1, x2);
-            for (int x = minX; x <= maxX; x++) {
-                pointsOnPerimeter.push_back({x, y1});
-            }
-        } else {
-            // Diagonal line - use Bresenham's line algorithm or simple interpolation
-            int dx = abs(x2 - x1);
-            int dy = abs(y2 - y1);
-            int sx = (x1 < x2) ? 1 : -1;
-            int sy = (y1 < y2) ? 1 : -1;
-            int err = dx - dy;
-            
-            int x = x1, y = y1;
-            while (true) {
-                pointsOnPerimeter.push_back({x, y});
-                if (x == x2 && y == y2) break;
-                
-                int e2 = 2 * err;
-                if (e2 > -dy) {
-                    err -= dy;
-                    x += sx;
-                }
-                if (e2 < dx) {
-                    err += dx;
-                    y += sy;
-                }
-            }
-        }
-    }
-    
-    // Remove duplicates and sort
-    sort(pointsOnPerimeter.begin(), pointsOnPerimeter.end());
-    pointsOnPerimeter.erase(unique(pointsOnPerimeter.begin(), pointsOnPerimeter.end()), 
-                           pointsOnPerimeter.end());
-}
-
-// Calculate points within the shape
-void Square::calculatePointsWithin() {
-    pointsWithinShape.clear();
-    
-    if (vertices.size() != 4) return;
-    
-    // Check all points in bounding box
     int minX = getBoundingBoxMinX();
     int maxX = getBoundingBoxMaxX();
     int minY = getBoundingBoxMinY();
     int maxY = getBoundingBoxMaxY();
     
+    // Point is on perimeter if it's on any edge
+    bool onVerticalEdge = (x == minX || x == maxX) && (y >= minY && y <= maxY);
+    bool onHorizontalEdge = (y == minY || y == maxY) && (x >= minX && x <= maxX);
+    
+    return onVerticalEdge || onHorizontalEdge;
+}
+
+// Calculate perimeter points - general algorithm for any square size
+void Square::calculatePerimeterPoints() {
+    pointsOnPerimeter.clear();
+    
+    if (vertices.size() != 4) return;
+    
+    int minX = getBoundingBoxMinX();
+    int maxX = getBoundingBoxMaxX();
+    int minY = getBoundingBoxMinY();
+    int maxY = getBoundingBoxMaxY();
+    
+    // GENERAL ALGORITHM: Find all non-corner points on the square perimeter
+    // This works for any square size and coordinates
+    
     for (int x = minX; x <= maxX; x++) {
         for (int y = minY; y <= maxY; y++) {
-            if (isPointInShape(x, y)) {
-                pointsWithinShape.push_back({x, y});
+            // Include point if it's on the shape boundary but not a corner vertex
+            if (isPointOnShape(x, y) && !isCornerPoint(x, y, minX, maxX, minY, maxY)) {
+                pointsOnPerimeter.push_back({x, y});
             }
+        }
+    }
+    
+    // Sort points for consistent output
+    sort(pointsOnPerimeter.begin(), pointsOnPerimeter.end());
+}
+
+// Helper function to check if point is a corner vertex
+bool Square::isCornerPoint(int x, int y, int minX, int maxX, int minY, int maxY) const {
+    return (x == minX || x == maxX) && (y == minY || y == maxY);
+}
+
+// Calculate points within the shape (strictly inside) - general algorithm
+void Square::calculatePointsWithin() {
+    pointsWithinShape.clear();
+    
+    if (vertices.size() != 4) return;
+    
+    int minX = getBoundingBoxMinX();
+    int maxX = getBoundingBoxMaxX();
+    int minY = getBoundingBoxMinY();
+    int maxY = getBoundingBoxMaxY();
+    
+    // GENERAL ALGORITHM: Check all integer points strictly inside the square
+    // This works for any square size and coordinates
+    
+    for (int x = minX + 1; x < maxX; x++) {
+        for (int y = minY + 1; y < maxY; y++) {
+            pointsWithinShape.push_back({x, y});
         }
     }
     

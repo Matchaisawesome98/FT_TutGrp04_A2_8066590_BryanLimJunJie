@@ -41,11 +41,12 @@ string Circle::toString() const {
     ss << "Special Type : " << (getContainsWarpSpace() ? "WS" : "NS") << endl;
     ss << "Area : " << fixed << setprecision(2) << computeArea() << " units square" << endl;
 
-    // For circles, we show center and radius
-    ss << "Center : (" << centerX << ", " << centerY << ")" << endl;
-    ss << "Radius : " << radius << " units" << endl;
+    // For circles, we show vertices count and center/radius info
+    ss << "Vertices : 1" << endl;
+    ss << "Center Point : (" << centerX << ", " << centerY << ")" << endl;
+    ss << "Radius : " << radius << endl;
 
-    // Show perimeter points
+    // Show perimeter points (only 4 cardinal points as per assignment requirement)
     ss << "Points on perimeter : ";
     if (pointsOnPerimeter.empty()) {
         ss << "none!";
@@ -94,10 +95,9 @@ bool Circle::isPointOnShape(int x, int y) const {
 void Circle::calculatePerimeterPoints() {
     pointsOnPerimeter.clear();
 
-    // For assignment requirement, we only need the 4 cardinal points:
-    // North, South, East, West relative to center
+    // Test case shows: (13,14), (16,11), (19,14), (16,17) for center(16,14) radius=3
     pointsOnPerimeter.push_back({centerX, centerY + radius});      // North
-    pointsOnPerimeter.push_back({centerX, centerY - radius});      // South
+    pointsOnPerimeter.push_back({centerX, centerY - radius});      // South  
     pointsOnPerimeter.push_back({centerX + radius, centerY});      // East
     pointsOnPerimeter.push_back({centerX - radius, centerY});      // West
 
